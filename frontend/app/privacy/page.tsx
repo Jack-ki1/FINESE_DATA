@@ -1,0 +1,9 @@
+import { MarketingPage } from "@/components/landing";
+export const metadata = { title: "Privacy", description: "Starter privacy disclosure for FINESE DATA." };
+export default function PrivacyPage() { return <MarketingPage eyebrow="PRIVACY NOTICE · DRAFT" title="Your data deserves a clear explanation." intro="This is a development-stage disclosure, not legal advice. The site owner must review it against the final code, deployed providers, jurisdiction, and applicable Kenyan and other privacy laws before public launch." sections={[
+  { title: "Browser-local analysis", text: "In the starter, CSV parsing, profiling, simple cleaning, chart summaries and the restricted query subset run in the user's browser. The current client may save a dataset and experiment notes to browser local storage. Browser storage can be evicted and is not a backup."},
+  { title: "No connected generative AI", text: "The local assistant uses deterministic functions and does not send prompts or dataset values to an AI provider. Future provider integration must be opt-in and must disclose which fields, schema or content may be transmitted."},
+  { title: "Contact forms", text: "The starter contact form does not post content to a server. It only prepares a mailto message when a verified public contact address is configured. Server-side email, analytics, and CRM handling are not connected."},
+  { title: "Cloud accounts and storage", text: "Authentication, cloud projects, object storage, analytics cookies and multi-user sharing are not connected in the current starter. Add a specific notice and retention/access controls before enabling them."},
+  { title: "Owner review required", text: "Replace this draft with verified data-controller details, purpose and lawful basis, processors, international transfers, retention, user rights, security contacts and complaint routes before production."}
+]} />; }

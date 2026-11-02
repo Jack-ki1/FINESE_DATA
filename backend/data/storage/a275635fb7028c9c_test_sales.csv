@@ -1,0 +1,5 @@
+region,units,sales,segment
+Nairobi,10,500.0,Retail
+Mombasa,15,750.0,Retail
+Nairobi,10,500.0,Retail
+Kisumu,,300.0,Enterprise
