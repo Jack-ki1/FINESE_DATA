@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" fill="none">
+  <defs>
+    <linearGradient id="chGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="260" rx="16" fill="#0F172A" />
+  <rect x="0.5" y="0.5" width="399" height="259" rx="15.5" stroke="rgba(255,255,255,0.08)" />
+
+  <text x="28" y="32" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">Frequency &amp; Distribution Builder</text>
+  <text x="28" y="48" font-family="system-ui, sans-serif" font-size="10.5" fill="#94A3B8">Instant binning on any detected column</text>
+
+  <!-- Interactive chart bars -->
+  <g transform="translate(28, 70)">
+    <!-- Grid lines -->
+    <line x1="0" y1="30" x2="344" y2="30" stroke="rgba(255,255,255,0.05)" />
+    <line x1="0" y1="70" x2="344" y2="70" stroke="rgba(255,255,255,0.05)" />
+    <line x1="0" y1="110" x2="344" y2="110" stroke="rgba(255,255,255,0.05)" />
+    <line x1="0" y1="140" x2="344" y2="140" stroke="rgba(255,255,255,0.12)" />
+
+    <!-- Bars -->
+    <rect x="20" y="70" width="28" height="70" rx="4" fill="url(#chGrad)" opacity="0.8" />
+    <text x="26" y="156" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">0-10</text>
+
+    <rect x="68" y="45" width="28" height="95" rx="4" fill="url(#chGrad)" opacity="0.8" />
+    <text x="72" y="156" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">10-20</text>
+
+    <rect x="116" y="18" width="28" height="122" rx="4" fill="#38BDF8" />
+    <text x="120" y="156" font-family="system-ui, sans-serif" font-size="9" fill="#38BDF8" font-weight="bold">20-30</text>
+    <!-- Tooltip -->
+    <rect x="96" y="-6" width="68" height="20" rx="4" fill="#1E293B" stroke="#38BDF8" stroke-width="1" />
+    <text x="108" y="8" font-family="system-ui, sans-serif" font-size="9.5" font-weight="bold" fill="#FFFFFF">1,842 rows</text>
+
+    <rect x="164" y="55" width="28" height="85" rx="4" fill="url(#chGrad)" opacity="0.8" />
+    <text x="168" y="156" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">30-40</text>
+
+    <rect x="212" y="80" width="28" height="60" rx="4" fill="url(#chGrad)" opacity="0.8" />
+    <text x="216" y="156" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">40-50</text>
+
+    <rect x="260" y="100" width="28" height="40" rx="4" fill="url(#chGrad)" opacity="0.8" />
+    <text x="264" y="156" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">50-60</text>
+
+    <rect x="308" y="115" width="28" height="25" rx="4" fill="url(#chGrad)" opacity="0.8" />
+    <text x="312" y="156" font-family="system-ui, sans-serif" font-size="9" fill="#64748B">60+</text>
+  </g>
+</svg>

@@ -22,27 +22,28 @@ export async function POST(req: Request) {
     }
 
     // 3. Delegate to Backend or handle locally
-    const backendUrl = getBackendUrl();
-    try {
-      const backendRes = await fetch(`${backendUrl}/api/contact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), message: message.trim() }),
-      });
-      if (backendRes.ok) {
-        const data = await backendRes.json();
-        return Response.json(data);
-      }
-    } catch {
-      // Backend unavailable; process safe local validation response
-    }
-
-    return Response.json({
-      status: "success",
-      message: "Contact request validated successfully.",
-      delivered: false,
+    const backendRes = await fetch(`${getBackendUrl()}/api/contact`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name.trim(), email: email.trim(), message: message.trim() }),
     });
+    let data: unknown;
+    try {
+      data = await backendRes.json();
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        return createErrorResponse("BACKEND_INVALID_RESPONSE", "Contact service returned an invalid response.", 502);
+      }
+      throw error;
+    }
+    return Response.json(data, { status: backendRes.status });
   } catch (error) {
-    return createErrorResponse("INTERNAL_SERVER_ERROR", "Failed to process contact request.", 500);
+    if (error instanceof TypeError) {
+      return createErrorResponse("BACKEND_UNAVAILABLE", "Contact delivery service is currently unreachable.", 503);
+    }
+    if (error instanceof SyntaxError) {
+      return createErrorResponse("INVALID_INPUT", "Request body must be valid JSON.", 400);
+    }
+    throw error;
   }
 }

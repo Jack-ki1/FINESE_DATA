@@ -1,22 +1,19 @@
 FROM python:3.12-slim
 
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+COPY backend/requirements.txt ./backend/requirements.txt
+RUN pip install --no-cache-dir -r backend/requirements.txt
 
-# Install python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY backend/ ./backend/
 
-# Copy backend application
-COPY . .
+RUN useradd --create-home app && \
+    mkdir -p /app/backend/data/storage /app/backend/artifacts && \
+    chown -R app /app
 
-# Create volume/storage directories
-RUN mkdir -p data/storage artifacts
+USER app
 
 EXPOSE 8000
 

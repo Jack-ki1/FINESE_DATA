@@ -4,10 +4,8 @@ def test_contact_submission_valid(client):
         "email": "jane@example.com",
         "message": "We would like to explore FINESE DATA for sales analytics.",
     })
-    assert res.status_code == 200
-    data = res.json()
-    assert data["status"] == "success"
-    assert "delivered" in data
+    assert res.status_code == 503
+    assert res.json()["error"]["code"] == "CONTACT_DELIVERY_UNAVAILABLE"
 
 def test_contact_honeypot_triggers_error(client):
     res = client.post("/api/contact", json={

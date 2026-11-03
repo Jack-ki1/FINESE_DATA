@@ -7,7 +7,7 @@ This is a security-oriented implementation checklist, not a penetration-test rep
 - Uploaded files and every field value are untrusted. The starter caps CSV size/rows/columns and renders values through React text nodes; continue validating headers, malformed encodings and exports.
 - Browser-only operations do not make the browser immune to malicious files or memory exhaustion. Keep explicit file limits and handle parser failure without crashing the whole page.
 - The current SQL feature is a restricted SELECT subset with explicit limitations. It is not an acceptable security boundary for exposing arbitrary SQL to a server, nor does it provide full DuckDB semantics.
-- The current local assistant never calls an external LLM. Do not add hidden schema or row transmission.
+- Browser-local Studio analysis does not call an external LLM. The separate FastAPI AI endpoint can call OpenAI when configured; it requires consent and sends the prompt plus a minimized profile, not raw rows. Keep this distinction clear in the UI and privacy notice.
 - Local storage may contain customer data if users choose to import it. Provide an obvious clear-data control and warn that browser storage can be evicted or inspected by users with access to the device.
 
 ## Before enabling cloud accounts or uploads

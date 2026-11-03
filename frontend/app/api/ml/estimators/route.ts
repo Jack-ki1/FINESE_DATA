@@ -7,6 +7,7 @@ export async function GET() {
     const data = await backendRes.json();
     return Response.json(data, { status: backendRes.status });
   } catch (error) {
-    return createErrorResponse("BACKEND_UNAVAILABLE", "ML service is currently unreachable.", 503);
+    if (error instanceof TypeError) return createErrorResponse("BACKEND_UNAVAILABLE", "ML service is currently unreachable.", 503);
+    throw error;
   }
 }

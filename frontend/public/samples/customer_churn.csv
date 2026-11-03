@@ -1,0 +1,17 @@
+account_id,country,plan,monthly_usd,tenure_months,support_tickets,churn_risk
+ACC-1010,Kenya,Enterprise,450.0,24,1,Low
+ACC-1011,Uganda,Pro,120.0,6,4,High
+ACC-1012,Tanzania,Starter,49.0,3,2,Medium
+ACC-1013,Rwanda,Enterprise,450.0,18,0,Low
+ACC-1014,Kenya,Pro,120.0,14,2,Low
+ACC-1015,Kenya,Starter,49.0,1,5,High
+ACC-1016,Uganda,Enterprise,600.0,36,1,Low
+ACC-1017,Tanzania,Pro,120.0,9,3,Medium
+ACC-1018,Kenya,Enterprise,450.0,12,0,Low
+ACC-1019,Rwanda,Starter,49.0,2,4,High
+ACC-1020,Kenya,Pro,120.0,20,1,Low
+ACC-1021,Uganda,Starter,49.0,5,3,Medium
+ACC-1022,Tanzania,Enterprise,750.0,42,2,Low
+ACC-1023,Kenya,Starter,49.0,8,2,Low
+ACC-1024,Rwanda,Pro,120.0,11,1,Low
+ACC-1025,Kenya,Enterprise,450.0,30,0,Low

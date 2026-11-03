@@ -17,6 +17,7 @@ export async function POST(
     const data = await backendRes.json();
     return Response.json(data, { status: backendRes.status });
   } catch (error) {
-    return createErrorResponse("BACKEND_UNAVAILABLE", "Job compute service is currently unreachable.", 503);
+    if (error instanceof TypeError) return createErrorResponse("BACKEND_UNAVAILABLE", "Job compute service is currently unreachable.", 503);
+    throw error;
   }
 }

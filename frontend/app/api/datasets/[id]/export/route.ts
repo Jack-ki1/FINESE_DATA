@@ -28,6 +28,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    return createErrorResponse("BACKEND_UNAVAILABLE", "Dataset export service is currently unreachable.", 503);
+    if (error instanceof TypeError) return createErrorResponse("BACKEND_UNAVAILABLE", "Dataset export service is currently unreachable.", 503);
+    throw error;
   }
 }

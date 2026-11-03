@@ -1,31 +1,9 @@
 export type Cell = string | number | null;
 export type DataRow = Record<string, Cell>;
-export type Dataset = { name: string; columns: string[]; rows: DataRow[]; updatedAt: string; source: "sample" | "local-upload" | "local-change" };
+export type Dataset = { name: string; columns: string[]; rows: DataRow[]; updatedAt: string; source: "local-upload" | "local-change" };
 
 export const STORAGE_KEY = "finese.studio.dataset.v1";
 export const THEME_KEY = "finese.studio.theme.v1";
-
-export const sampleDataset = (): Dataset => {
-  const raw = [
-    ["2026-01", "Nairobi", "Laptop", 18, 745000, "Retail"], ["2026-01", "Mombasa", "Monitor", 24, 312000, "SME"],
-    ["2026-02", "Nairobi", "Laptop", 21, 882000, "Retail"], ["2026-02", "Kisumu", "Keyboard", 47, 141000, "Education"],
-    ["2026-02", "Nakuru", "Monitor", 16, 224000, "SME"], ["2026-03", "Nairobi", "Laptop", 26, 1092000, "Retail"],
-    ["2026-03", "Mombasa", "Keyboard", 39, 117000, "Education"], ["2026-03", "Kisumu", "Monitor", 19, 266000, "SME"],
-    ["2026-04", "Nairobi", "Laptop", 29, 1218000, "Retail"], ["2026-04", "Nakuru", "Keyboard", 33, 99000, "Education"],
-    ["2026-04", "Mombasa", "Monitor", 17, 238000, "SME"], ["2026-05", "Nairobi", "Laptop", 32, 1344000, "Retail"],
-    ["2026-05", "Kisumu", "Keyboard", 41, 123000, "Education"], ["2026-05", "Nakuru", "Monitor", 22, 308000, "SME"],
-    ["2026-06", "Nairobi", "Laptop", 35, 1470000, "Retail"], ["2026-06", "Mombasa", "Monitor", 20, 280000, "SME"],
-    ["2026-06", "Kisumu", "Keyboard", 45, 135000, "Education"], ["2026-07", "Nairobi", "Laptop", 38, 1596000, "Retail"],
-    ["2026-07", "Nakuru", "Monitor", 23, 322000, "SME"], ["2026-07", "Mombasa", "Keyboard", 42, 126000, "Education"],
-    ["2026-08", "Nairobi", "Laptop", 43, 1806000, "Retail"], ["2026-08", "Kisumu", "Monitor", 25, 350000, "SME"],
-    ["2026-08", "Nakuru", "Keyboard", 46, 138000, "Education"], ["2026-09", "Nairobi", "Laptop", 48, 2016000, "Retail"],
-    ["2026-09", "Mombasa", "Monitor", 27, 378000, "SME"], ["2026-09", "Kisumu", "Keyboard", 49, 147000, "Education"],
-    ["2026-10", "Nairobi", "Laptop", 52, 2184000, "Retail"], ["2026-10", "Nakuru", "Monitor", 28, 392000, "SME"],
-    ["2026-10", "Mombasa", "Keyboard", 53, 159000, "Education"], ["2026-10", "Kisumu", "Laptop", 15, 630000, "Retail"]
-  ] as (string | number)[][];
-  const columns = ["month", "region", "product", "units_sold", "sales_kes", "segment"];
-  return { name: "sample_sales_kenya.csv", columns, rows: raw.map((r) => Object.fromEntries(columns.map((c, i) => [c, r[i] as Cell]))), updatedAt: "2026-10-19T00:00:00.000Z", source: "sample" };
-};
 
 function castCell(value: string): Cell {
   const v = value.trim();
@@ -139,7 +117,7 @@ export function runSafeQuery(dataset: Dataset, query: string): { columns: string
     throw new Error("Only one read-only SELECT query over the current in-memory dataset is supported here. File, network, extension and write operations are blocked.");
   }
   // Parse the complete supported statement. Unsupported clauses are rejected instead of silently ignored.
-  const parsed = q.match(/^select\s+([\s\S]+?)\s+from\s+(?:dataset|data|sales|sample_sales_kenya)(?:\s+group\s+by\s+([\w"`]+))?(?:\s+limit\s+(\d+))?$/i);
+  const parsed = q.match(/^select\s+([\s\S]+?)\s+from\s+(?:dataset|data)(?:\s+group\s+by\s+([\w"`]+))?(?:\s+limit\s+(\d+))?$/i);
   if (!parsed) {
     if (!/^select\s+/i.test(q)) throw new Error("This starter supports SELECT queries only.");
     throw new Error("Unsupported query shape. Supported forms are SELECT * FROM dataset [LIMIT n], SELECT column[, column] FROM dataset [LIMIT n], COUNT(*), and column + COUNT(*) GROUP BY column. WHERE, ORDER BY, joins and functions are not enabled here.");
@@ -184,4 +162,55 @@ export function localInsight(dataset: Dataset, prompt: string) {
     return numeric.length ? `Local numeric summary: ${numeric.map((c) => `${c.name} mean ${formatNumber(c.mean)}, min ${formatNumber(c.min)}, max ${formatNumber(c.max)}`).join("; ")}. These are computed from the current dataset in this browser.` : "I couldn't identify numeric columns in this dataset. Import a CSV with numeric values to compute numeric summaries.";
   }
   return `I can help you explore this dataset locally. It contains ${p.rows} rows and ${p.columns} columns. Try asking about missing values, column types, quality, average values or a suggested chart. This response uses deterministic browser calculations; a generative provider is not connected in this starter.`;
+}
+
+export const SAMPLE_SALES_CSV = `region,units,sales,segment,quarter,satisfaction_score
+Nairobi Central,1240,68200.0,Enterprise,Q1,4.8
+Mombasa Port,890,44500.0,Logistics,Q1,4.5
+Nakuru Hub,2150,118250.0,Retail,Q1,4.9
+Kisumu Lakeside,760,38000.0,Enterprise,Q1,4.2
+Eldoret Highlands,1450,72500.0,Agriculture,Q1,4.6
+Thika Industrial,1120,61600.0,Manufacturing,Q1,4.4
+Nyeri Central,980,49000.0,Retail,Q1,4.7
+Machakos Junction,640,32000.0,Logistics,Q1,4.3
+Nairobi West,1820,95000.0,Enterprise,Q2,4.8
+Mombasa North,920,46000.0,Retail,Q2,4.5
+Nakuru West,1950,105000.0,Retail,Q2,4.8
+Kisumu CBD,810,41000.0,Enterprise,Q2,4.4
+Eldoret Central,1520,76000.0,Agriculture,Q2,4.7
+Thika Greens,1280,69000.0,Manufacturing,Q2,4.6
+Nyeri Ridge,940,47000.0,Retail,Q2,4.5
+Naivasha Resort,710,35500.0,Hospitality,Q2,4.9
+Nairobi South,2100,115000.0,Enterprise,Q3,4.9
+Mombasa Old Town,860,43000.0,Logistics,Q3,4.2
+Nakuru East,1780,94000.0,Retail,Q3,4.7
+Kisumu Airport,890,45000.0,Logistics,Q3,4.5
+Eldoret South,1380,69000.0,Agriculture,Q3,4.6
+Thika Gate,1040,57000.0,Manufacturing,Q3,4.3
+Nyeri Hills,890,44500.0,Retail,Q3,4.6
+Naivasha Lakeside,820,41000.0,Hospitality,Q3,4.8`;
+
+export const SAMPLE_CHURN_CSV = `account_id,country,plan,monthly_usd,tenure_months,support_tickets,churn_risk
+ACC-1010,Kenya,Enterprise,450.0,24,1,Low
+ACC-1011,Uganda,Pro,120.0,6,4,High
+ACC-1012,Tanzania,Starter,49.0,3,2,Medium
+ACC-1013,Rwanda,Enterprise,450.0,18,0,Low
+ACC-1014,Kenya,Pro,120.0,14,2,Low
+ACC-1015,Kenya,Starter,49.0,1,5,High
+ACC-1016,Uganda,Enterprise,600.0,36,1,Low
+ACC-1017,Tanzania,Pro,120.0,9,3,Medium
+ACC-1018,Kenya,Enterprise,450.0,12,0,Low
+ACC-1019,Rwanda,Starter,49.0,2,4,High
+ACC-1020,Kenya,Pro,120.0,20,1,Low
+ACC-1021,Uganda,Starter,49.0,5,3,Medium
+ACC-1022,Tanzania,Enterprise,750.0,42,2,Low
+ACC-1023,Kenya,Starter,49.0,8,2,Low
+ACC-1024,Rwanda,Pro,120.0,11,1,Low
+ACC-1025,Kenya,Enterprise,450.0,30,0,Low`;
+
+export function getSampleDataset(type: "sales" | "churn" = "sales"): Dataset {
+  if (type === "churn") {
+    return parseCSV(SAMPLE_CHURN_CSV, "customer_churn_sample.csv");
+  }
+  return parseCSV(SAMPLE_SALES_CSV, "regional_sales_sample.csv");
 }

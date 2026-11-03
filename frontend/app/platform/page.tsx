@@ -1,10 +1,27 @@
 import { MarketingPage } from "@/components/landing";
 export const metadata = { title: "Platform", description: "Explore the browser-first FINESE Studio data workflow." };
-export default function PlatformPage() { return <MarketingPage eyebrow="FINESE PLATFORM" title="A connected home for data exploration." intro="FINESE Studio brings data review, careful cleaning, visual exploration and query workflows into one workspace. Start locally, understand the limits, and extend only when your use case needs more." sections={[
-  { title: "Review before you decide", text: "Inspect rows, inferred field types, missing values, exact duplicates and numerical summaries from the data you loaded." , bullets: ["CSV import in browser", "Quality formula shown", "Real row preview"]},
-  { title: "Clean with your eyes open", text: "Preview supported transformations, apply deterministic changes and export the resulting dataset. Destructive operations are never hidden." , bullets: ["Trim whitespace", "Remove exact duplicates", "Handle missing cells"]},
-  { title: "Explore and query", text: "Build a basic frequency chart or run a restricted read-only SELECT subset. A full DuckDB-WASM adapter is documented as the next SQL milestone." , bullets: ["Local frequency chart", "Bounded query subset", "CSV result export"]},
-  { title: "AI with consent", text: "Deterministic summary helpers work without keys. Any future generative provider must be opt-in and clearly disclose which data leaves the device.", bullets: ["No AI provider connected by default", "Verified local calculations", "Budget and privacy controls needed for cloud AI"]},
-  { title: "A realistic path to advanced ML", text: "The starter explains model evaluation but does not pretend to train models. Larger Python workloads belong on a separately deployed worker with bounded jobs." , bullets: ["Baseline-first approach", "Leakage controls", "Optional external worker"]},
-  { title: "Local-first persistence", text: "The browser can save a small workspace locally, subject to browser quotas and eviction. Export important work; browser storage is not a backup." , bullets: ["No account required for basic flows", "Clear local data control", "Cloud sync not connected"]}
-]} />; }
+export default function PlatformPage() {
+  return (
+    <MarketingPage
+      eyebrow="FINESE PLATFORM"
+      title="A connected home for data exploration."
+      intro="FINESE Studio brings data review, careful cleaning, visual exploration and query workflows into one workspace. Start locally, understand the limits, and extend only when your use case needs more."
+      heroImage="/images/showcase/circuit-tech.jpg"
+      heroImageAlt="Close-up of a colorful circuit board"
+      heroChip="One workspace, zero uploads"
+      gallery={[
+        { src: "/images/showcase/server-cloud.jpg", tag: "Persistence", title: "Local-first storage", text: "The browser can save a small workspace locally — export important work, because storage is not a backup." },
+        { src: "/images/showcase/cyber-matrix.jpg", tag: "Queries", title: "Bounded SQL execution", text: "A restricted read-only SELECT subset runs in memory, with a documented path to DuckDB-WASM." },
+        { src: "/images/showcase/tech-globe.jpg", tag: "Intelligence", title: "AI with consent", text: "Deterministic helpers work without keys; any future generative provider must be opt-in and disclosed." },
+      ]}
+      sections={[
+        { title: "Review before you decide", text: "Inspect rows, inferred field types, missing values, exact duplicates and numerical summaries from the data you loaded.", bullets: ["CSV import in browser", "Quality formula shown", "Real row preview"] },
+        { title: "Clean with your eyes open", text: "Preview supported transformations, apply deterministic changes and export the resulting dataset. Destructive operations are never hidden.", bullets: ["Trim whitespace", "Remove exact duplicates", "Handle missing cells"] },
+        { title: "Explore and query", text: "Build a basic frequency chart or run a restricted read-only SELECT subset. A full DuckDB-WASM adapter is documented as the next SQL milestone.", bullets: ["Local frequency chart", "Bounded query subset", "CSV result export"] },
+        { title: "AI with consent", text: "Deterministic summary helpers work without keys. Any future generative provider must be opt-in and clearly disclose which data leaves the device.", bullets: ["No AI provider connected by default", "Verified local calculations", "Budget and privacy controls needed for cloud AI"] },
+        { title: "A realistic path to advanced ML", text: "The starter explains model evaluation but does not pretend to train models. Larger Python workloads belong on a separately deployed worker with bounded jobs.", bullets: ["Baseline-first approach", "Leakage controls", "Optional external worker"] },
+        { title: "Local-first persistence", text: "The browser can save a small workspace locally, subject to browser quotas and eviction. Export important work; browser storage is not a backup.", bullets: ["No account required for basic flows", "Clear local data control", "Cloud sync not connected"] }
+      ]}
+    />
+  );
+}

@@ -11,7 +11,6 @@ class Settings(BaseModel):
     ENV: str = os.getenv("ENV", "development")
     
     # Security
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "finese-data-compute-local-secret-key-change-in-prod")
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
@@ -40,7 +39,6 @@ class Settings(BaseModel):
     ]
     
     # Contact & AI settings
-    CONTACT_EMAIL_RECIPIENT: str | None = os.getenv("CONTACT_EMAIL_RECIPIENT", None)
     OPENAI_API_KEY: str | None = os.getenv("OPENAI_API_KEY", None)
     ANTHROPIC_API_KEY: str | None = os.getenv("ANTHROPIC_API_KEY", None)
 

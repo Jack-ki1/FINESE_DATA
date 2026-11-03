@@ -39,7 +39,7 @@ PYTHONPATH=. pytest backend/tests/ -v
 
 ## API Endpoints
 
-* `POST /api/contact` - Anti-spam honeypot and validated contact handler.
+* `POST /api/contact` - Validates contact input and honeypot; returns `CONTACT_DELIVERY_UNAVAILABLE` until a real mail provider is integrated.
 * `POST /api/ai/insights` - User-consent gated AI insights with deterministic computation fallback.
 * `POST /api/uploads/init` - Authorize file upload intent within 10 MB cap.
 * `POST /api/uploads/complete` - Finalize upload, inspect dimensions, and register dataset.

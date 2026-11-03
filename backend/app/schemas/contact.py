@@ -6,8 +6,3 @@ class ContactRequest(BaseModel):
     message: str = Field(..., min_length=10, max_length=3000)
     # Honeypot field for anti-bot defense (must be empty)
     website_url: str | None = Field(default=None, max_length=100)
-
-class ContactResponse(BaseModel):
-    status: str
-    message: str
-    delivered: bool
