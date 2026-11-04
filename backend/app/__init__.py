@@ -1,1 +1,1 @@
-# FINESE DATA Backend Package
+"""FINESE DATA backend application."""

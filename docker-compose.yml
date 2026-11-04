@@ -1,0 +1,95 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: finese
+      POSTGRES_USER: finese
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-replace-this-db-password}
+    volumes:
+      - finese_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finese -d finese"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - finese_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment: &backend-env
+      APP_ENV: production
+      SECRET_KEY: ${SECRET_KEY:?Set a long random SECRET_KEY in your environment}
+      DATABASE_URL: postgresql+psycopg://finese:${POSTGRES_PASSWORD:-replace-this-db-password}@postgres:5432/finese
+      STORAGE_DIR: /app/data/storage
+      ARTIFACTS_DIR: /app/data/artifacts
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:-http://localhost:3000}
+      REDIS_URL: redis://redis:6379/0
+      JOB_EXECUTION_MODE: celery
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-50}
+      MAX_ROWS: ${MAX_ROWS:-250000}
+      MAX_COLUMNS: ${MAX_COLUMNS:-500}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-3-5-haiku-latest}
+      ALLOW_REMOTE_DATABASE_CONNECTORS: ${ALLOW_REMOTE_DATABASE_CONNECTORS:-false}
+      REMOTE_DB_ALLOWED_HOSTS: ${REMOTE_DB_ALLOWED_HOSTS:-}
+    volumes:
+      - finese_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["celery", "-A", "backend.app.celery_app.celery_app", "worker", "--loglevel=INFO", "--concurrency=2"]
+    environment: *backend-env
+    volumes:
+      - finese_data:/app/data
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    environment:
+      NODE_ENV: production
+      BACKEND_URL: http://backend:8000
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  finese_postgres:
+  finese_redis:
+  finese_data:

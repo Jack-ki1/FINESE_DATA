@@ -1,51 +1,50 @@
-import re
-from fastapi import HTTPException, Request
-from fastapi.responses import JSONResponse
-from backend.app.schemas.common import ErrorDetail, ErrorResponse
+import base64, hashlib, hmac, json, os, re, secrets, time
+from fastapi import Depends, Header, HTTPException
+from sqlalchemy.orm import Session
+from backend.app.database import get_db
+from backend.app.models import User
+from backend.app.config import settings
 
-class APIException(HTTPException):
-    def __init__(self, status_code: int, code: str, message: str, details: any = None):
-        super().__init__(status_code=status_code, detail=message)
-        self.code = code
-        self.message = message
-        self.details = details
+def hash_password(password: str) -> str:
+    salt = secrets.token_bytes(16)
+    key = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 310_000)
+    return "pbkdf2_sha256$310000$" + base64.urlsafe_b64encode(salt).decode() + "$" + base64.urlsafe_b64encode(key).decode()
 
-def sanitize_filename(filename: str) -> str:
-    """Strip dangerous characters and directory traversals."""
-    clean = re.sub(r'[\r\n\\/\0]', '_', filename)
-    clean = re.sub(r'\.{2,}', '.', clean)
-    clean = clean.strip('. ')
-    return clean[:140] if clean else "dataset.csv"
+def verify_password(password: str, encoded: str) -> bool:
+    try:
+        scheme, rounds, salt64, key64 = encoded.split("$")
+        if scheme != "pbkdf2_sha256": return False
+        salt = base64.urlsafe_b64decode(salt64); expected = base64.urlsafe_b64decode(key64)
+        actual = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, int(rounds))
+        return hmac.compare_digest(actual, expected)
+    except Exception: return False
 
-def escape_csv_cell(value: any) -> str:
-    """
-    Prevent CSV formula injection (DDE attacks) in spreadsheet software.
-    Prepends single quote if string begins with =, +, -, @, or tab.
-    """
-    if value is None:
-        return ""
-    s = str(value)
-    if isinstance(value, str) and (re.match(r"^[\s\x00-\x1f]*[=+@\t]", s) or re.match(r"^[\s\x00-\x1f]*-", s)):
-        s = f"'{s}"
-    if any(c in s for c in [",", '"', "\r", "\n"]):
-        s = f'"{s.replace("\"", "\"\"")}"'
-    return s
+def _b64(data: bytes) -> str: return base64.urlsafe_b64encode(data).decode().rstrip("=")
+def issue_token(user_id: str) -> str:
+    header = _b64(json.dumps({"alg":"HS256","typ":"JWT"}).encode())
+    payload = _b64(json.dumps({"sub": user_id, "iat": int(time.time()), "exp": int(time.time()) + settings.TOKEN_TTL_SECONDS}).encode())
+    body = f"{header}.{payload}"
+    sig = _b64(hmac.new(settings.SECRET_KEY.encode(), body.encode(), hashlib.sha256).digest())
+    return f"{body}.{sig}"
 
-async def api_exception_handler(request: Request, exc: APIException):
-    envelope = ErrorResponse(
-        error=ErrorDetail(
-            code=exc.code,
-            message=exc.message,
-            details=exc.details
-        )
-    )
-    return JSONResponse(status_code=exc.status_code, content=envelope.model_dump())
+def decode_token(token: str) -> str:
+    try:
+        h, p, sig = token.split("."); body = f"{h}.{p}"
+        expected = _b64(hmac.new(settings.SECRET_KEY.encode(), body.encode(), hashlib.sha256).digest())
+        if not hmac.compare_digest(sig, expected): raise ValueError("signature")
+        payload = json.loads(base64.urlsafe_b64decode(p + "=" * (-len(p) % 4)))
+        if int(payload["exp"]) < time.time(): raise ValueError("expired")
+        return str(payload["sub"])
+    except Exception as exc: raise HTTPException(status_code=401, detail="Invalid or expired session. Please sign in again.") from exc
 
-async def generic_exception_handler(request: Request, exc: Exception):
-    envelope = ErrorResponse(
-        error=ErrorDetail(
-            code="INTERNAL_SERVER_ERROR",
-            message="An unexpected server error occurred. Internal details have been logged safely.",
-        )
-    )
-    return JSONResponse(status_code=500, content=envelope.model_dump())
+def get_current_user(authorization: str | None = Header(default=None), db: Session = Depends(get_db)) -> User:
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    user_id = decode_token(authorization.split(" ", 1)[1].strip())
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user: raise HTTPException(status_code=401, detail="Session user no longer exists.")
+    return user
+
+def safe_filename(value: str) -> str:
+    name = re.sub(r"[^A-Za-z0-9._ -]", "_", value).strip(" .")[:140]
+    return name or "dataset"
